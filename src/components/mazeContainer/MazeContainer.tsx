@@ -23,12 +23,14 @@ export const MazeContainer = ({ cols, rows }: IProps) => {
 
   return (
     <div className={styles.container}>
-      <ControlButtons
-        generateMaze={refreshMaze}
-        breadthFirstSearch={maze.bfs}
-        depthFirstSearch={maze.dfs}
-      />
-      <MazeGrid data={mazeData} />
+      <div className={styles.innerContainer}>
+        <ControlButtons
+          generateMaze={refreshMaze}
+          breadthFirstSearch={maze.bfs}
+          depthFirstSearch={maze.dfs}
+        />
+        <MazeGrid data={mazeData} />
+      </div>
     </div>
   );
 };

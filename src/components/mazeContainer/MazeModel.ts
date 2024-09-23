@@ -21,14 +21,14 @@ type Node = [number, number];
 interface IMazeProps {
   cols: number;
   rows: number;
-  onDataChange: React.Dispatch<React.SetStateAction<MazeData>>;
+  onDataChange: React.Dispatch<React.SetStateAction<MazeData | undefined>>;
 }
 
 export class Maze {
   matrix: MazeData;
   cols: number;
   rows: number;
-  updateData: React.Dispatch<React.SetStateAction<MazeData>>;
+  updateData: React.Dispatch<React.SetStateAction<MazeData | undefined>>;
 
   timeoutsIds: number[] = [];
   matrixUnsearched: MazeData = [];
@@ -97,7 +97,8 @@ export class Maze {
 
     carvePath(1, 1);
 
-    this.setStartEndPositions(matrix);
+    matrix[1][0] = "start";
+    matrix[this.rows - 2][this.cols - 1] = "end";
     this.setMatrix(matrix);
 
     this.matrixUnsearched = matrix;
@@ -105,17 +106,13 @@ export class Maze {
     return matrix;
   }
 
-  // modifies the data!
-  setStartEndPositions(matrix: MazeData) {
-    matrix[1][0] = "start";
-    matrix[this.rows - 2][this.cols - 1] = "end";
-  }
-
   visitCell([x, y]: Node) {
-    this.updateData((prevState: MazeData) => {
-      const matrix = [...prevState].map((row) => [...row]);
-      matrix[y][x] = "visited";
-      this.setStartEndPositions(prevState);
+    this.updateData((prevState) => {
+      const matrix = [...prevState!].map((row) => [...row]);
+      if (matrix[y][x] === "path") {
+        matrix[y][x] = "visited";
+      }
+
       this.matrix = matrix;
       return matrix;
     });

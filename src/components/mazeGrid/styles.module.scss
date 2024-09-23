@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   margin: 20px 0;
-  border: 2px solid blueviolet;
 }
 
 .row {
@@ -11,10 +10,12 @@
 .cell {
   width: 40px;
   height: 40px;
-  border: 1px solid rgb(230, 211, 230);
+  border: 1px solid rgb(50, 50, 50);
+  border-radius: 6px;
+  transition: background-color ease 0.3s;
 
   &.wall {
-    background-color: black;
+    background-color: rgb(22, 24, 25);
   }
 
   &.path {
@@ -22,11 +23,11 @@
   }
 
   &.start {
-    background-color: green;
+    background-color: rgb(51, 159, 51);
   }
 
   &.end {
-    background-color: red;
+    background-color: rgb(208, 24, 24);
   }
 
   &.visited {
