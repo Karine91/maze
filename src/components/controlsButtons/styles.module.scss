@@ -4,4 +4,14 @@
   margin: 0 15px;
   outline: 3px dashed white;
   outline-offset: 3px;
+
+  &.active {
+    outline-color: $mainColor;
+    color: $mainColor;
+  }
+
+  &:focus {
+    outline: 3px dashed $mainColor;
+    outline-offset: 3px;
+  }
 }

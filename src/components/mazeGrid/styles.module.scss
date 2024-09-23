@@ -10,16 +10,17 @@
 .cell {
   width: 40px;
   height: 40px;
-  border: 1px solid rgb(50, 50, 50);
-  border-radius: 6px;
+  border: 1px solid rgb(91, 91, 91);
+  border-radius: 5px;
   transition: background-color ease 0.3s;
+  margin: 0.5px;
 
   &.wall {
     background-color: rgb(22, 24, 25);
   }
 
   &.path {
-    background-color: white;
+    background-color: rgb(238, 238, 238);
   }
 
   &.start {
@@ -31,6 +32,6 @@
   }
 
   &.visited {
-    background-color: violet;
+    background-color: $mainColor;
   }
 }
