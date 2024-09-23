@@ -2,7 +2,7 @@ import { MazeGrid } from "../mazeGrid";
 import { useState } from "react";
 import styles from "./styles.module.scss";
 import { ControlButtons } from "../controlsButtons";
-import { generateMaze } from "./generate-maze";
+import { Maze, type MazeData } from "./MazeModel";
 
 interface IProps {
   cols: number;
@@ -10,11 +10,16 @@ interface IProps {
 }
 
 export const MazeContainer = ({ cols, rows }: IProps) => {
-  const [mazeData, setMazeData] = useState(() => generateMaze({ cols, rows }));
+  const [mazeData, setMazeData] = useState<MazeData>();
+  const [maze] = useState(
+    () => new Maze({ cols, rows, onDataChange: setMazeData })
+  );
 
   const refreshMaze = () => {
-    setMazeData(generateMaze({ cols, rows }));
+    maze.generateMaze();
   };
+
+  if (!mazeData) return "Loading...";
 
   return (
     <div className={styles.container}>

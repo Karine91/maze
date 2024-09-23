@@ -1,2 +1,2 @@
-export type { MazeData } from "./generate-maze";
+export type { MazeData } from "./MazeModel";
 export { MazeContainer } from "./MazeContainer";
