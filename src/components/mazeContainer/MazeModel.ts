@@ -158,8 +158,10 @@ export class Maze {
 
       const node = queue.shift() as Node;
 
-      this.choosePath(node, visited, queue);
-      this.timeoutsIds.push(setTimeout(step, 100));
+      const founded = this.choosePath(node, visited, queue);
+      if (!founded) {
+        this.timeoutsIds.push(setTimeout(step, 50));
+      }
     };
 
     step();
@@ -175,8 +177,10 @@ export class Maze {
       if (!stack.length) return;
 
       const node = stack.pop() as Node;
-      this.choosePath(node, visited, stack);
-      this.timeoutsIds.push(setTimeout(step, 100));
+      const founded = this.choosePath(node, visited, stack);
+      if (!founded) {
+        this.timeoutsIds.push(setTimeout(step, 50));
+      }
     };
 
     step();
