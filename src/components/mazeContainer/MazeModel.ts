@@ -21,14 +21,18 @@ type Node = [number, number];
 interface IMazeProps {
   cols: number;
   rows: number;
-  onDataChange: (data: MazeData) => void;
+  onDataChange: React.Dispatch<React.SetStateAction<MazeData>>;
 }
 
 export class Maze {
   matrix: MazeData;
   cols: number;
   rows: number;
-  updateData: (data: MazeData) => void;
+  updateData: React.Dispatch<React.SetStateAction<MazeData>>;
+
+  timeoutsIds: number[] = [];
+  matrixUnsearched: MazeData = [];
+
   constructor({ cols, rows, onDataChange }: IMazeProps) {
     this.matrix = [] as MazeData;
     this.cols = cols;
@@ -51,7 +55,15 @@ export class Maze {
     this.updateData(matrix);
   }
 
+  clearTimeouts = () => {
+    this.timeoutsIds.forEach((timeId) => {
+      clearTimeout(timeId);
+    });
+    this.timeoutsIds = [];
+  };
+
   generateMaze() {
+    this.clearTimeouts();
     const matrix = [] as MazeData;
 
     for (let i = 0; i < this.rows; i++) {
@@ -85,21 +97,61 @@ export class Maze {
 
     carvePath(1, 1);
 
-    matrix[1][0] = "start";
-    matrix[this.rows - 2][this.cols - 1] = "end";
-
+    this.setStartEndPositions(matrix);
     this.setMatrix(matrix);
+
+    this.matrixUnsearched = matrix;
 
     return matrix;
   }
 
-  visitCell([x, y]: Node) {
-    const matrix = [...this.matrix].map((row) => [...row]);
-    matrix[y][x] = "visited";
-    this.setMatrix(matrix);
+  // modifies the data!
+  setStartEndPositions(matrix: MazeData) {
+    matrix[1][0] = "start";
+    matrix[this.rows - 2][this.cols - 1] = "end";
   }
 
-  bfs(startNode: Node) {
+  visitCell([x, y]: Node) {
+    this.updateData((prevState: MazeData) => {
+      const matrix = [...prevState].map((row) => [...row]);
+      matrix[y][x] = "visited";
+      this.setStartEndPositions(prevState);
+      this.matrix = matrix;
+      return matrix;
+    });
+  }
+
+  choosePath = ([x, y]: Node, visited: Set<string>, queue: Node[]) => {
+    for (const [dx, dy] of dirs) {
+      const newX = x + dx;
+      const newY = y + dy;
+
+      const nodeKey = [newX, newY].toString();
+
+      if (this.isWithinMazeBound(newX, newY) && !visited.has(nodeKey)) {
+        visited.add(nodeKey);
+
+        if (this.matrix[newY][newX] === "end") {
+          this.visitCell([newX, newY]);
+          return true;
+        }
+
+        if (this.matrix[newY][newX] === "path") {
+          this.visitCell([newX, newY]);
+          queue.push([newX, newY]);
+        }
+      }
+    }
+  };
+
+  resetSearch = () => {
+    this.clearTimeouts();
+    this.setMatrix(this.matrixUnsearched);
+  };
+
+  bfs = () => {
+    this.resetSearch();
+    const startNode: Node = [1, 1];
     const queue = [startNode];
 
     const visited = new Set(startNode.toString());
@@ -107,31 +159,29 @@ export class Maze {
     const step = () => {
       if (!queue.length) return;
 
-      const [x, y] = queue.shift() as Node;
+      const node = queue.shift() as Node;
 
-      for (const [dx, dy] of dirs) {
-        const newX = x + dx;
-        const newY = y + dy;
-
-        const nodeKey = [newX, newY].toString();
-
-        if (this.isWithinMazeBound(newX, newY) && !visited.has(nodeKey)) {
-          visited.add(nodeKey);
-
-          if (this.matrix[newY][newX] === "end") {
-            this.visitCell([newX, newY]);
-            console.log("path found!");
-            return true;
-          }
-
-          if (this.matrix[newY][newX] === "path") {
-            this.visitCell([newX, newY]);
-            queue.push([newX, newY]);
-          }
-        }
-      }
+      this.choosePath(node, visited, queue);
+      this.timeoutsIds.push(setTimeout(step, 100));
     };
 
     step();
-  }
+  };
+
+  dfs = () => {
+    this.resetSearch();
+    const startNode: Node = [1, 1];
+    const stack = [startNode];
+    const visited = new Set(startNode.toString());
+
+    const step = () => {
+      if (!stack.length) return;
+
+      const node = stack.pop() as Node;
+      this.choosePath(node, visited, stack);
+      this.timeoutsIds.push(setTimeout(step, 100));
+    };
+
+    step();
+  };
 }
